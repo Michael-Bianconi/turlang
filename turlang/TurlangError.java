@@ -13,4 +13,18 @@ public class TurlangError extends RuntimeException {
                     Integer.toString(line));
         }
     }
+    
+    public static class MemoryOverflowError
+            extends TurlangError {
+        public MemoryOverflowError() {
+            super("Memory limit exceeded.");
+        }
+    }
+    
+    public static class UndefinedStateError
+            extends TurlangError {
+        public UndefinedStateError(String label) {
+            super("Undefined state: " + label);
+        }
+    }
 }

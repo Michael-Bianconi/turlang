@@ -1,0 +1,8 @@
+a:
+    0 -> none left b
+    1 -> none left accept
+b:
+    0 -> none left b
+    1 -> none left a
+    
+
