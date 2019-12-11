@@ -16,8 +16,9 @@ public class Turlang {
             Tape tape) {
         
         while (true) {
-            Character c = tape.read();
+            String c = tape.read();
             String next = active.transition(c, tape);
+            if (next == null) return false;
             if (next.toLowerCase().equals("accept")) return true;
             if (next.toLowerCase().equals("reject")) return false;
             active = findState(states, next);
@@ -41,7 +42,7 @@ public class Turlang {
             List<State> states = Parser.parse(new File(args[0]));
             Tape tape = new Tape(args[1], 1024);
             boolean result = simulate(states, states.get(0), tape);
-            //System.out.println(new Boolean(result));
+            System.out.println(new Boolean(result));
             
         } catch (Exception e) {
             e.printStackTrace();

@@ -1,8 +1,8 @@
 a:
-    0 -> none left b
-    1 -> none left accept
+    0 -> none right b
+    1 -> none right accept
 b:
-    0 -> none left b
-    1 -> none left a
+    0 -> none right b
+    1 -> none right a
     
 

@@ -20,7 +20,7 @@ public class State {
             String out,
             String tape,
             String go) {
-            
+
         if (this.transitions.containsKey(in)
         || (this.transitions.containsKey("any")
         &&  !in.equals("end"))) {
@@ -33,9 +33,7 @@ public class State {
         }
     }
     
-    public String transition(Character c, Tape tape) {
-
-        String s = Tape.characterToString(c);
+    public String transition(String s, Tape tape) {
         
         if (!s.equals("end") && this.transitions.containsKey("any")) {
             s = "any"; 
@@ -43,7 +41,7 @@ public class State {
 
         if (this.transitions.containsKey(s)) {
             String[] t = this.transitions.get(s);
-            tape.write(Tape.stringToCharacter(t[0]));
+            tape.write(t[0]);
             if (t[1].equals("left")) tape.moveLeft();
             else if (t[1].equals("right")) tape.moveRight();
             return t[2];
