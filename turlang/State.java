@@ -38,10 +38,13 @@ public class State {
         if (!s.equals("end") && this.transitions.containsKey("any")) {
             s = "any"; 
         }
-
+        
+        else if (s.equals(" ")) s = "space";
+        else if (s.equals("\n")) s = "newline";
+        else if (s.equals("\t")) s = "tab";
         if (this.transitions.containsKey(s)) {
             String[] t = this.transitions.get(s);
-            tape.write(t[0]);
+            if (!t[0].equals("none")) tape.write(t[0]);
             if (t[1].equals("left")) tape.moveLeft();
             else if (t[1].equals("right")) tape.moveRight();
             return t[2];

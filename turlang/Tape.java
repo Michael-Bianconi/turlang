@@ -65,6 +65,16 @@ public class Tape {
             this.head++;
             this.write(s);
         }
-    }              
+    }
+    
+    public String toString() {
+        String result = "";
+        for (String s : this.tape) {
+            if (s.equals("space")) result += " ";
+            else if (s.equals("end")) continue;
+            else result += s;
+        }
+        return result;
+    }
 }
 
