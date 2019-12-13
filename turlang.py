@@ -4,7 +4,7 @@ ignoreregex = re.compile("^(//.*|"")$", re.IGNORECASE)
 labelregex = re.compile("^\\S+:$")
 transitionregex = re.compile(
     "^(\\S|any|end|space|newline|tab|baz)\\s+->" +
-    "\\s+(\\S|none|space|newline|tab|baz)" +
+    "\\s+(\\S|end|none|space|newline|tab|baz)" +
     "\\s+(left|right)" +
     "\\s+\\S+$", re.IGNORECASE)
 states = {}
@@ -13,20 +13,20 @@ head = 1
 
 def create_tape(inputstring):
     global tape
-    tokens = emoji.get_emoji_regexp().split(inputstring)
-    tokens = [substr.split() for substr in tokens]
-    tokens = functools.reduce(operator.concat, tokens)
-    tape = ["end"] + tokens + ["end"]
+    tape = ["end"] + list(inputstring) + ["end"]
 
 def read():
     global tape, head
-    if head >= 0: return tape[head]
+    if head >= 0 and head < len(tape): return tape[head]
     else: return "end"
     
 def write(value):
     global tape, head
-    if head >= 0: tape[head] = value
-    else:
+    if head >= 0 and head < len(tape): tape[head] = value
+    elif head >= 0:
+        tape.append("end")
+        write(value)
+    elif head < 0:
         tape.insert(0, "end")
         head += 1
         write(value)
@@ -82,7 +82,7 @@ def transition(statelabel, read):
     if "any" in state: read = "any"
     if not read in state: return None
     trans = state[read]
-    if trans["write"] != "none": write(t["write"])
+    if trans["write"] != "none": write(trans["write"])
     if trans["tape"] == "left": head -= 1
     elif trans["tape"] == "right": head += 1
     return trans["next"]
@@ -98,10 +98,11 @@ def simulate(active):
 
 def main():
     global states, tape
-    if len(sys.argv) != 3:
+    if len(sys.argv) < 2 or len(sys.argv) > 3:
         print("Usage: python3 turlang.py <file> <input>")
         sys.exit()
-    inputstring = sys.argv.pop()
+    if len(sys.argv) == 2: inputstring = ''
+    else: inputstring = sys.argv.pop()
     filename = sys.argv.pop()
     start = parse(filename)
     create_tape(inputstring)
