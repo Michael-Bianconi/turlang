@@ -1,4 +1,4 @@
-import sys, re, emoji, functools, operator
+import sys, re, functools, operator, argparse 
 
 ignoreregex = re.compile("^(//.*|"")$", re.IGNORECASE)
 labelregex = re.compile("^\\S+:$")
@@ -10,6 +10,12 @@ transitionregex = re.compile(
 states = {}
 tape = []
 head = 1
+linecount = -1
+
+def err(msg: str):
+    print("Error (line " + str(linecount) + "): ", end='')
+    print(msg)
+    sys.exit(1)
 
 def create_tape(inputstring):
     global tape
@@ -49,20 +55,22 @@ def create_transition(states, label, read, write, tape, next):
     elif write == "space": write = ' '
     elif write == "tab": write = '\t'
     
+    if label not in states:
+        err('State body outside state definition')
     state = states[label]
     state[read] = {"write": write,"tape": tape,"next": next}
 
 
 def parse(filename: str) -> tuple:
 
-    global states
-    linecount = 0
+    global states, linecount
     active = None
     start = None
     
     with open(filename) as tlfile:
         for line in tlfile:
             line = line.strip()
+            linecount += 1
             if (ignoreregex.match(line)): continue
             elif (labelregex.match(line)):
                 active = line[:-1]
@@ -73,11 +81,14 @@ def parse(filename: str) -> tuple:
                 line.pop(1)  # remove arrow
                 create_transition(states, active, *line)
             else:
-                raise ValueError(line)
+                err('Syntax error')
+                sys.exit(1)
     return start
 
 def transition(statelabel, read):
     global states, head
+    if statelabel not in states:
+        err('Jump to undefined state: ' + str(statelabel))
     state = states[statelabel]
     if "any" in state: read = "any"
     if not read in state: return None
@@ -98,14 +109,19 @@ def simulate(active):
 
 def main():
     global states, tape
-    if len(sys.argv) < 2 or len(sys.argv) > 3:
-        print("Usage: python3 turlang.py <file> <input>")
-        sys.exit()
-    if len(sys.argv) == 2: inputstring = ''
-    else: inputstring = sys.argv.pop()
-    filename = sys.argv.pop()
-    start = parse(filename)
-    create_tape(inputstring)
+    
+    parser = argparse.ArgumentParser(description='Turlang Interpreter')
+    parser.add_argument('source', type=str, help='Turlang Source')
+    parser.add_argument('string', type=str, help='Input string')
+    args = parser.parse_args()
+    
+    filename = args.source
+    start = parse(args.source)
+    create_tape(args.string)
+    
+    if start is None:
+        err('Error: No start state')
+    
     print(simulate(start))
     
 if __name__ == '__main__':
